@@ -23,15 +23,15 @@ const BaseText: React.FC<PDTextProps> = (props) => {
     const theme = useTheme();
 
     /// Default styles are derived from the "style" of text (from our design system, expressed via the prop)
-    const defaultStyles = props.type && styles[props.type];
+    const defaultStyles = props.type && textStyles[props.type];
     /// The default color is applied based on the active PDTheme object
     const textColor = theme.colors[color ?? 'black'];
     const colorStylesFromTheme = { color: textColor };
     /// Any custom TextStyle properties are also applied at the end, via the "style" prop:
-    const textStyles = StyleSheet.flatten([defaultStyles, colorStylesFromTheme, { textAlign }, style]);
+    const finalTextStyles = StyleSheet.flatten([defaultStyles, colorStylesFromTheme, { textAlign }, style]);
 
     return (
-        <Text style={ textStyles } allowFontScaling={ true } maxFontSizeMultiplier={ 1.4 } { ...restProps }>
+        <Text style={ finalTextStyles } allowFontScaling={ true } maxFontSizeMultiplier={ 1.4 } { ...restProps }>
             {children}
         </Text>
     );
@@ -44,7 +44,7 @@ BaseText.defaultProps = {
 
 export const PDText = BaseText;
 
-const styles = StyleSheet.create({
+export const textStyles = StyleSheet.create({
     default: {
         fontFamily: 'Poppins-Regular',
         fontWeight: '600',
@@ -103,6 +103,11 @@ const styles = StyleSheet.create({
         fontFamily: 'Poppins-Bold',
         lineHeight: 36,
         fontSize: 24,
+    },
+    nav: {
+        fontFamily: 'Poppins-ExtraBold',
+        lineHeight: 27,
+        fontSize: 22,
     },
     buttonSmall: {
         fontFamily: 'Poppins-Bold',

@@ -49,6 +49,9 @@ export const useSettings = () => {
     const handleNavigateThemeToggled = () => {
         navigate('ThemeToggleScreen');
     };
+    const handleNavigateAuth = () => {
+        navigate('AuthScreen');
+    };
 
     const handleExportData = async () => {
         try {
@@ -123,6 +126,15 @@ export const useSettings = () => {
 
                     animationIndex: 4,
                 },
+                {
+                    id: 'createAccount',
+                    image: 'IconAccount',
+                    label: 'Create Account',
+                    valueColor: 'black',
+                    onPress: handleNavigateAuth,
+
+                    animationIndex: 5,
+                },
             ],
         },
         {
@@ -135,7 +147,7 @@ export const useSettings = () => {
                     valueColor: 'black',
                     onPress: handleNavigateThemeToggled,
 
-                    animationIndex: 5,
+                    animationIndex: 6,
                 },
             ],
         },

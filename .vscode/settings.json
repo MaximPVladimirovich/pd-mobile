@@ -10,6 +10,7 @@
     "editor.detectIndentation": false,
     "prettier.configPath": "./.prettierrc.js",
     "cSpell.words": [
+        "Formik",
         "pojo"
     ]
 }

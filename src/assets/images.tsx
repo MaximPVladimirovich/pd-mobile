@@ -72,6 +72,10 @@ import SmallSunDark from './images/theme/theme_sun_small_light.svg';
 import SmallMoonDark from './images/theme/theme_moon_small_dark.svg';
 import AutomaticLight from './images/theme/theme_automatic_light.svg';
 import AutomaticDark from './images/theme/theme_automatic_dark.svg';
+// Account
+import AccountSettings from './images/icons/icon_account.svg';
+import IconAppleWhite from './images/icons/icon_apple_white.svg';
+import IconAppleBlack from './images/icons/icon_apple_black.svg';
 
 export const images = {
     back: require('./images/back.png'),
@@ -195,8 +199,13 @@ export const SVG: Record<string, (props: OverrideSvgProps) => JSX.Element> = {
     SmallMoonDark: (props) => <SmallMoonDark { ...props } />,
     AutomaticLight: (props) => <AutomaticLight { ...props } />,
     AutomaticDark: (props) => <AutomaticDark { ...props } />,
+    IconAccount: (props) => <AccountSettings { ...props } />,
 
     // Home
     HomeDescriptionText: (props) => <HomeDescriptionText { ...props } />,
     HomeWaves: (props) => <HomeWaves { ...props } />,
+
+    // Account
+    IconAppleWhite: (props) => <IconAppleWhite { ...props } />,
+    IconAppleBlack: (props) => <IconAppleBlack { ...props } />,
 };

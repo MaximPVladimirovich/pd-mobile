@@ -17,6 +17,7 @@ import { SettingNavigation } from './animationEffects';
 import { TermsScreen } from '~/screens/subscription/TermsScreen';
 import { PrivacyScreen } from '~/screens/subscription/PrivacyScreen';
 import { PoolDoctorImportScreen } from '~/screens/special/PoolDoctorImportScreen';
+import { AuthNavigator } from './AuthNavigator';
 
 // This defines the navigation params accepted by each possible screen in PDCardNavigator
 export type PDCardNavigatorParams = {
@@ -34,6 +35,7 @@ export type PDCardNavigatorParams = {
     PrivacyPolicy: undefined;
     ScoopsList: undefined;
     PoolDoctorImport: undefined;
+    AuthScreen: undefined;
 };
 
 const CardStack = createStackNavigator<PDCardNavigatorParams>();
@@ -64,6 +66,7 @@ export const PDCardNavigator = (): JSX.Element => {
             <CardStack.Screen name="PrivacyPolicy" component={ PrivacyScreen } />
             <CardStack.Screen name="ScoopsList" component={ ScoopsListScreen }  />
             <CardStack.Screen name="PoolDoctorImport" component={ PoolDoctorImportScreen }  />
+            <CardStack.Screen name="AuthScreen" component={ AuthNavigator }  />
         </CardStack.Navigator>
     );
 };

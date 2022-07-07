@@ -68,7 +68,8 @@ export type PDTextType =
     | 'subHeading'
     | 'heading'
     | 'buttonSmall'
-    | 'content';
+    | 'content'
+    | 'nav';
 
 /// Defines some constants for margins / padding / etc...
 export const PDSpacing = {

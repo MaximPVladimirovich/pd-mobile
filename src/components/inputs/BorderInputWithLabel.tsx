@@ -2,8 +2,9 @@ import React from 'react';
 import { StyleSheet, TextInput, TextInputProps, TextStyle, ViewStyle } from 'react-native';
 
 import { PDText } from '../PDText';
-import { PDColor, useTheme } from '../PDTheme';
+import { PDColor, PDSpacing, useTheme } from '../PDTheme';
 import { PDView } from '../PDView';
+import { textStyles } from '~/components/PDText';
 
 interface BorderInputWithLabel extends TextInputProps {
     label: string;
@@ -11,22 +12,43 @@ interface BorderInputWithLabel extends TextInputProps {
     textInputStyleProps?: TextStyle | TextStyle[];
     containerStyles?: ViewStyle;
     color?: PDColor
+    errorText?: string;
 }
 
 const BorderInputWithLabel = React.forwardRef<TextInput, BorderInputWithLabel>((props, ref) => {
     const { label, labelStyleProps, style, textInputStyleProps, color = 'black', ...restTextInputProps } = props;
     const theme = useTheme();
 
-    const defaultStyle = [ styles.textInput, { borderColor: theme.colors.border, color: theme.colors[color] },  textInputStyleProps, style ];
+    const inputStyle = [
+        textStyles.bodySemiBold,
+        styles.textInput,
+        {
+            borderColor: theme.colors.border,
+            color: theme.colors[color],
+            backgroundColor: theme.colors.white,
+        },
+        textInputStyleProps,
+        style,
+    ];
 
     return (
         <PDView style={ props.containerStyles }>
-            <PDText type="bodyGreyBold" color="grey" style={ labelStyleProps }>
-                {label}
+            <PDText
+                type="bodyGreyBold"
+                color="greyDark"
+                style={ labelStyleProps }
+            >
+                { label }
             </PDText>
+            {props.errorText && <PDText
+                type="bodySemiBold"
+                color="red"
+            >
+                { props.errorText }
+            </PDText>}
             <TextInput
                 ref={ ref }
-                style={ defaultStyle }
+                style={ inputStyle }
                 placeholderTextColor={ theme.colors.grey }
                 blurOnSubmit
                 allowFontScaling
@@ -43,12 +65,11 @@ BorderInputWithLabel.defaultProps = {
 
 const styles = StyleSheet.create({
     textInput: {
+        marginTop: 4.5,     // PDSpacing.xs - ((lineHeight - fontSize) / 2.0)
+        marginBottom: PDSpacing.md,
         borderWidth: 2,
-        borderRadius: 6,
+        borderRadius: 8,
         paddingVertical: 8,
-        fontSize: 16,
-        fontStyle: 'normal',
-        fontWeight: '600',
         paddingLeft: 8,
         minWidth: 100,
     },
