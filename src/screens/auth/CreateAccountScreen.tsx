@@ -11,11 +11,13 @@ import { REGISTER, USERNAME_CHECK } from '~/services/gql/AuthAPI';
 import { checkUsername, checkUsernameVariables } from '~/services/gql/generated/checkUsername';
 import { Register, RegisterVariables } from '~/services/gql/generated/Register';
 import { AuthTextField } from './AuthTextField';
-import { PDTerms } from '~/components/misc/Terms';
 import { ButtonWithChildren } from '~/components/buttons/ButtonWithChildren';
 import { SVG } from '~/assets/images';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { ErrorParser } from './ErrorParser';
+import { LinkText } from '~/components/misc/LinkText';
+import { PDStackNavigationProps } from '~/navigator/shared';
+import { useNavigation } from '@react-navigation/native';
 
 interface Values {
     email: string;
@@ -39,6 +41,7 @@ export const CreateAccountScreen: React.FC = () => {
     const [register/*, registerState*/] = useMutation<Register, RegisterVariables>(REGISTER);
     const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
     const [hasSubmittedForm, setHasSubmittedForm] = React.useState(false);
+    const { navigate } = useNavigation<PDStackNavigationProps>();
 
     const emailRef = React.useRef<TextInput>(null);
     const usernameRef = React.useRef<TextInput>(null);
@@ -180,7 +183,12 @@ export const CreateAccountScreen: React.FC = () => {
                             ref={ pw2Ref }
                             returnKeyType="done"
                             onSubmit={ () => { setHasSubmittedForm(true); handleSubmit(); } }/>
-                        <PDTerms type="account" containerStyles={ styles.terms }/>
+                        <LinkText spans={ [
+                            { text: 'By creating an account, you agree to our ' },
+                            { text: 'Terms of Service', action: () => navigate('TermsOfService') },
+                            { text: ' and ' },
+                            { text: 'Privacy Policy.', action: () => navigate('PrivacyPolicy') },
+                        ] }/>
                         <ButtonWithChildren
                             onPress={ () => { setHasSubmittedForm(true); handleSubmit(); } }
                             styles={ [
@@ -205,6 +213,10 @@ export const CreateAccountScreen: React.FC = () => {
                     }
                     <PDText type="subHeading" color="white">Sign In with Apple</PDText>
             </ButtonWithChildren>
+            <LinkText spans={ [
+                { text: 'Already have an account? ' },
+                { text: 'Login.', action: () => navigate('Login') },
+            ] }/>
         </KeyboardAwareScrollView>
     </PDSafeAreaView>;
 };

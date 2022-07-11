@@ -11,7 +11,7 @@ export const TermsScreen: React.FC = () => {
     return (
         <PDSafeAreaView style={ { display: 'flex', backgroundColor: 'white' } } forceInset={ { bottom: 'never' } }>
             <ScreenHeader>Terms of Service</ScreenHeader>
-            <WebView source={ { uri: Config.terms_url } } style={ { flex: 1, backgroundColor: 'red' } } />
+            <WebView source={ { uri: Config.terms_url } } style={ { flex: 1, backgroundColor: 'white' } } />
         </PDSafeAreaView>
     );
 };

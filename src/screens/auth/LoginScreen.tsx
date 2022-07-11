@@ -15,6 +15,9 @@ import { ButtonWithChildren } from '~/components/buttons/ButtonWithChildren';
 import { SVG } from '~/assets/images';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { ErrorParser } from './ErrorParser';
+import { LinkText } from '~/components/misc/LinkText';
+import { PDStackNavigationProps } from '~/navigator/shared';
+import { useNavigation } from '@react-navigation/native';
 
 interface Values {
     email: string;
@@ -38,6 +41,7 @@ export const LoginScreen: React.FC = () => {
     const [register] = useMutation<Register, RegisterVariables>(REGISTER);
     const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
     const [hasSubmittedForm, setHasSubmittedForm] = React.useState(false);
+    const { navigate } = useNavigation<PDStackNavigationProps>();
 
     const emailRef = React.useRef<TextInput>(null);
     const usernameRef = React.useRef<TextInput>(null);
@@ -105,10 +109,10 @@ export const LoginScreen: React.FC = () => {
 
     return <PDSafeAreaView forceInset={ { bottom: 'never' } } bgColor="white">
 
-        <ScreenHeader hasBackButton color="blue" textType="nav">Create Account</ScreenHeader>
+        <ScreenHeader hasBackButton color="blue" textType="nav">Sign In</ScreenHeader>
         <KeyboardAwareScrollView style={ { ...styles.scrollView, backgroundColor: theme.colors.background } } extraScrollHeight={ 65 }>
             <PDText type="content" color="greyDark" textAlign="center" style={ styles.headerText }>
-                Create an account to backup your pool data to pooldash.com
+                Login to your account
             </PDText>
             <Formik
                 initialValues={ initialValues }
@@ -173,6 +177,10 @@ export const LoginScreen: React.FC = () => {
                     }
                     <PDText type="subHeading" color="white">Sign In with Apple</PDText>
             </ButtonWithChildren>
+            <LinkText spans={ [
+                { text: "Don't have an account yet? " },
+                { text: 'Create one now!', action: () => navigate('CreateAccount') },
+            ] }/>
 
         </KeyboardAwareScrollView>
     </PDSafeAreaView>;

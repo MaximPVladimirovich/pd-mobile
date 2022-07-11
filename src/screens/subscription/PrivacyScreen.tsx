@@ -11,7 +11,7 @@ export const PrivacyScreen: React.FC = () => {
     return (
         <PDSafeAreaView style={ { display: 'flex', backgroundColor: 'white' } } forceInset={ { bottom: 'never' } }>
             <ScreenHeader>Privacy Policy</ScreenHeader>
-            <WebView source={ { uri: Config.privacy_url } } style={ { flex: 1, backgroundColor: 'red' } } />
+            <WebView source={ { uri: Config.privacy_url } } style={ { flex: 1, backgroundColor: 'white' } } />
         </PDSafeAreaView>
     );
 };
