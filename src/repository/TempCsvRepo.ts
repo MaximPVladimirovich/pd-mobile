@@ -1,5 +1,6 @@
 import * as RNFS from 'react-native-fs';
 import { Util } from '~/services/Util';
+import { readString } from 'react-native-csv';
 
 const csvFolderName = 'csv';
 const secondsInDay = 86400;
@@ -16,9 +17,10 @@ export namespace TempCsvRepo {
             // Make some room if needed:
             await deleteOldFiles();
 
-            // TODO: make this more robust? nah.
+            // TODO: make this more robust? nah... um yeah.
             const filename = fileNamePrefix + new Date().toISOString() + fileNameSuffix;
             const filePath = getFilepathForFilename(filename);
+
 
             await RNFS.writeFile(filePath, data, 'utf8');
             return filePath;
@@ -35,6 +37,11 @@ export namespace TempCsvRepo {
         }
 
         const fileData = await RNFS.readFile(filePath, 'utf8');
+
+        const csvData = readString(fileData);
+
+        console.log('TempCsvRepo readCSV()', csvData);
+
         return fileData;
     };
 

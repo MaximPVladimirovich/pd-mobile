@@ -16,8 +16,12 @@ export namespace ExportService {
     /// If a pool is provided, the csv is just for that pool.
     /// Otherwise, the csv will include all data for all pools.
     export const generateAndShareCSV = async (pool: Pool | null) => {
+        let csvData = null;
         let csvDataString = '';
         if (pool === null) {
+            const generatedCsvData = DataService.newGenerateCsvFileForAllPools();
+            csvData = generatedCsvData;
+
             csvDataString = DataService.generateCsvFileForAllPools();
         } else {
             csvDataString = DataService.generateCsvFileForPool(pool);
@@ -26,14 +30,16 @@ export namespace ExportService {
         if (Config.isAndroid) {
             await shareCSVAndroid(csvDataString);
         } else {
-            await saveAndShareCSViOS(csvDataString);
+          console.log('Export Service', csvData);
+
+            await saveAndShareCSViOS(csvData);
         }
     };
 
     /// On iOS, the base64 encoded urls only work in some apps, but not in others (ex: mail).
     /// So, we temporarily write the file to disk, then share a handle to that file, and then
     /// (much later) delete the files.
-    const saveAndShareCSViOS = async (stringData: string): Promise<void> => {
+    const saveAndShareCSViOS = async (stringData: any): Promise<void> => {
         const filePath = await TempCsvRepo.saveCSV(stringData);
 
         const sharableURL = `file://${filePath}`;

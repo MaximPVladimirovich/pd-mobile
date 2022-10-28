@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import DocumentPicker from 'react-native-document-picker';
+import { ImportService } from '~/services/importService';
 
 interface useFilePickerProps {
   pickFile: () => Promise<void>;
@@ -17,11 +18,19 @@ export const useFilePicker = ():useFilePickerProps => {
   const pickFile = async () => {
     try {
       const res: any = await DocumentPicker.pickSingle({
-        // Define type for ios devices using Uniform Type Identifiers
+        type: [DocumentPicker.types.csv],
       });
 
-      console.log(res);
+      if (res.type === 'text/csv') {
+        const fileData = await ImportService.importCSV(res.uri);
 
+        // This should be in another place. I have this here just for testing functionality.
+        const json = ImportService.convertCSV_To_JSON(fileData);
+
+        console.log('useFilePicker hook result', json);
+      } else {
+        console.log('File type not supported');
+      }
 
       setFile(res);
     } catch (err) {
