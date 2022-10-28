@@ -23,7 +23,7 @@ import { Config } from '~/services/Config/AppConfig';
 import { PDButtonSolid } from '~/components/buttons/PDButtonSolid';
 import { SVG } from '~/assets/images';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-
+import { useFilePicker } from '~/hooks/useFilePicker';
 
 export const PoolDoctorImportScreen: React.FC = () => {
     const [hasImported, setHasImported] = useState(false);
@@ -33,6 +33,7 @@ export const PoolDoctorImportScreen: React.FC = () => {
     const [createdLogs, setCreatedLogs] = useState(0);
     const [skippedLogs, setSkippedLogs] = useState(0);
     const numPools = useImportablePools();
+    const { pickFile } = useFilePicker();
     useStandardStatusBar();
 
     const theme = useTheme();
@@ -131,12 +132,15 @@ export const PoolDoctorImportScreen: React.FC = () => {
 
     const getContent = () => {
         if (!Config.isIos) {
-            return <PDText type="bodyMedium" color="greyDarker">Sorry, this only imports data from the Pool Doctor iPhone app.</PDText>;
+          // Does pool doctor allow csv exports? If so we can change or even remove this becuase we are creating a csv import feature.
+            return <PDText type="bodyMedium" color="red">Imports from the Pool Doctor app are not available on Android devices.</PDText>;
         }
         if (numPools === 0) {
             return <>
-                <PDText type="bodyMedium" color="greyDarker">No pools found. Make sure you have installed and opened the latest version of the Pool Doctor app.</PDText>
-                <BoringButton title="Go Home" onPress={ goHome } containerStyles={ { backgroundColor: theme.colors.blue, marginTop: PDSpacing.lg  } } />
+                <PDText type="bodyMedium" color="red">You don't have any pools to import.</PDText>
+                <PDText type="bodyMedium" color="greyDarker">Make sure you have installed and opened the latest version of the Pool Doctor app or upload a file from your device.</PDText>
+                <BoringButton title="Import from Pool Doctor" onPress={ goHome } containerStyles={ { backgroundColor: theme.colors.blue, marginTop: PDSpacing.lg  } } />
+                <BoringButton title="Import csv" onPress={ pickFile } containerStyles={ { backgroundColor: theme.colors.blue, marginTop: PDSpacing.lg  } } />
             </>;
         }
         if (hasStartedImport && !hasImported) {
@@ -183,7 +187,7 @@ export const PoolDoctorImportScreen: React.FC = () => {
     return (
         <PDSafeAreaView style={ { backgroundColor: theme.colors.white } } forceInset={ { bottom: 'never' } } >
             <ScreenHeader textType="heading" color="blue">
-                Pool Doctor Import
+                Importing
             </ScreenHeader>
             <ScrollView style={ { flex: 1 } } contentInset={ { bottom: insets.bottom } }>
                 <PDView style={ styles.container }>
