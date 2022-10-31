@@ -31,7 +31,7 @@ export namespace DataService {
 
       const json = JSON.stringify(data);
 
-      const csv = JsonToCSV(json);
+      const csv = jsonToCSV(json);
 
       return csv;
 
@@ -52,16 +52,10 @@ export namespace DataService {
         wallType: pool.wallType,
         formulaId: pool.formulaId || '' ,
         objectId: pool.objectId,
-        logs: logsToJson,
+        logs: JSON.stringify(logsToJson),
       };
 
       return data;
-    };
-
-    const JsonToCSV = (data: any) => {
-      const csv = jsonToCSV(data);
-
-      return csv;
     };
 
 

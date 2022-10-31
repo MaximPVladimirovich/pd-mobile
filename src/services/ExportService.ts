@@ -30,8 +30,6 @@ export namespace ExportService {
         if (Config.isAndroid) {
             await shareCSVAndroid(csvDataString);
         } else {
-          console.log('Export Service', csvData);
-
             await saveAndShareCSViOS(csvData);
         }
     };

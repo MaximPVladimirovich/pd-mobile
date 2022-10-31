@@ -67,7 +67,7 @@ export class Database {
             });
         } catch (e) {
             console.log(e);
-            console.error('couldnt save it');
+            console.error("Couldn't save pool.");
         }
         return pool;
     };

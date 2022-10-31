@@ -1,6 +1,6 @@
 import * as RNFS from 'react-native-fs';
 import { Util } from '~/services/Util';
-import { readString } from 'react-native-csv';
+import { ImportService } from '~/services/importService';
 
 const csvFolderName = 'csv';
 const secondsInDay = 86400;
@@ -30,7 +30,9 @@ export namespace TempCsvRepo {
         }
     };
 
-    export const readCSV = async (filePath: string): Promise<string> => {
+    // Since this functions is called readCSV, I am assuming it is only used for reading csv files instead of all files.
+    // TODO: decide if this this should be a default readFile function or refactor for different file types.
+    export const readCSV = async (filePath: string): Promise<any> => {
         const fileExists = await RNFS.exists(filePath);
         if (!fileExists) {
             return Promise.reject('File does not exist!');
@@ -38,11 +40,9 @@ export namespace TempCsvRepo {
 
         const fileData = await RNFS.readFile(filePath, 'utf8');
 
-        const csvData = readString(fileData);
+        const csv = ImportService.convertCSV_To_JSON(fileData);
 
-        console.log('TempCsvRepo readCSV()', csvData);
-
-        return fileData;
+        return csv;
     };
 
     export const ensureDirectoryExists = async (): Promise<void> => {

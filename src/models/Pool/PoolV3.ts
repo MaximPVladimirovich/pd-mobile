@@ -1,4 +1,6 @@
 import { FormulaID } from '~/formulas/models/FormulaID';
+import { ReadingEntryV2 } from '../logs/ReadingEntry/ReadingEntryV2';
+import { TreatmentEntryV2 } from '../logs/TreatmentEntry/TreatmentEntryV2';
 import { IPool } from './IPool';
 import { WallTypeValue } from './WallType';
 import { WaterTypeValue } from './WaterType';
@@ -34,6 +36,9 @@ export class PoolV3 implements IPool {
     // Pool Doctor's old id for the pool (if imported)
     poolDoctorId?: string;
 
+    // The pool's logs
+    logs?: Array<PoolLog>;
+
     // For Realm purposes
     static schema = {
         name: 'Pool',
@@ -51,3 +56,12 @@ export class PoolV3 implements IPool {
         },
     };
 }
+
+type PoolLog = {
+    type: string;
+    objectId: string;
+    userTs: string;
+    formulaId: string;
+    readingEntries: Array<ReadingEntryV2>;
+    treatmentEntries: Array<TreatmentEntryV2>;
+};
