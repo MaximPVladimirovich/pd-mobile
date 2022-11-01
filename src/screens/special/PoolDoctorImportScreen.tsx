@@ -157,7 +157,24 @@ export const PoolDoctorImportScreen: React.FC = () => {
     const getContent = () => {
         if (!Config.isIos) {
           // Does pool doctor allow csv exports? If so we can change or even remove this becuase we are creating a csv import feature.
-            return <PDText type="bodyMedium" color="red">Imports from the Pool Doctor app are not available on Android devices.</PDText>;
+            return <>
+                    <PDText type="bodyMedium" color="red">
+                        Imports from the Pool Doctor app are not available on Android devices.
+                    </PDText>
+                    <BoringButton title="Import File" onPress={ pickFile } containerStyles={ { backgroundColor: theme.colors.blue, marginTop: PDSpacing.lg  } } />
+
+                { file?.uri && <View style={ { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', marginTop: PDSpacing.lg } }>
+                <PDText type="buttonSmall" color="greyDarker">{ file.name }</PDText>
+                { file.uri ? <TouchableOpacity onPress={ importCSV }>
+                  <SVG.IconImportData fill={ theme.colors.blue } />
+                </TouchableOpacity> : null }
+                {/* Remove file svg */}
+                { file.uri ? <TouchableOpacity onPress={ () => setFile(null) }>
+                  <SVG.IconDeleteOutline fill={ theme.colors.blue } />
+                </TouchableOpacity> : null }
+              </View> }
+                </>;
+
         }
         if (numPools === 0) {
             return <>
