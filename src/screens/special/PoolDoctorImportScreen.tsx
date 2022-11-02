@@ -2,7 +2,7 @@ import * as React from 'react';
 import { PDMigrator } from '~/services/migrator/NativeModule';
 import { useCallback, useEffect } from 'react';
 import { useState } from 'react';
-import { Alert, NativeEventEmitter, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Alert, NativeEventEmitter, StyleSheet } from 'react-native';
 import { ScreenHeader } from '~/components/headers/ScreenHeader';
 import { PDSafeAreaView } from '~/components/PDSafeAreaView';
 import { PDText } from '~/components/PDText';
@@ -23,11 +23,7 @@ import { Config } from '~/services/Config/AppConfig';
 import { PDButtonSolid } from '~/components/buttons/PDButtonSolid';
 import { SVG } from '~/assets/images';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useFilePicker } from '~/hooks/useFilePicker';
-import { ImportService } from '~/services/importService';
-import { dispatch } from '~/redux/AppState';
-import { saveNewPool } from '~/redux/selectedPool/Actions';
-import { IPool } from '~/models/Pool';
+import { Import } from '~/components/list/Import';
 
 export const PoolDoctorImportScreen: React.FC = () => {
     const [hasImported, setHasImported] = useState(false);
@@ -37,7 +33,6 @@ export const PoolDoctorImportScreen: React.FC = () => {
     const [createdLogs, setCreatedLogs] = useState(0);
     const [skippedLogs, setSkippedLogs] = useState(0);
     const numPools = useImportablePools();
-    const { pickFile, file, setFile } = useFilePicker();
     useStandardStatusBar();
 
     const theme = useTheme();
@@ -67,27 +62,6 @@ export const PoolDoctorImportScreen: React.FC = () => {
             setHasImported(true);
         }
     }, [skippedPools, createdPools, numPools, hasStartedImport]);
-
-
-    const importCSV = async () => {
-        if (!file) {
-            return;
-        }
-
-        const { data } = await ImportService.importFileAsCSV(file.uri);
-        const pools = ImportService.convertJSON_To_Pools(data);
-
-        // TODO: check for saved pools and save only new ones.
-        // Currently if a pool that is imported already exists in the app, saveNewPool will throw an error.
-        pools.forEach((pool: IPool) => {
-            dispatch(saveNewPool(pool));
-        });
-
-        navigate('Home');
-
-      return pools;
-    };
-
 
     useEffect(() => {
         if (!Config.isIos) { return; }
@@ -155,44 +129,23 @@ export const PoolDoctorImportScreen: React.FC = () => {
     };
 
     const getContent = () => {
-        if (!Config.isIos) {
-          // Does pool doctor allow csv exports? If so we can change or even remove this becuase we are creating a csv import feature.
-            return <>
-                    <PDText type="bodyMedium" color="red">
-                        Imports from the Pool Doctor app are not available on Android devices.
-                    </PDText>
-                    <BoringButton title="Import File" onPress={ pickFile } containerStyles={ { backgroundColor: theme.colors.blue, marginTop: PDSpacing.lg  } } />
+      if (!Config.isIos) {
+        // Does pool doctor allow csv exports? If so we can change or even remove this becuase we are creating a csv import feature.
+        return <>
+          <PDText type="bodyMedium" color="red">
+            Imports from the Pool Doctor app are not available on Android devices.
+          </PDText>
+          <BoringButton title="Import File" containerStyles={ { backgroundColor: theme.colors.blue, marginTop: PDSpacing.lg } } />
+          <Import />
+        </>;
 
-                { file?.uri && <View style={ { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', marginTop: PDSpacing.lg } }>
-                <PDText type="buttonSmall" color="greyDarker">{ file.name }</PDText>
-                { file.uri ? <TouchableOpacity onPress={ importCSV }>
-                  <SVG.IconImportData fill={ theme.colors.blue } />
-                </TouchableOpacity> : null }
-                {/* Remove file svg */}
-                { file.uri ? <TouchableOpacity onPress={ () => setFile(null) }>
-                  <SVG.IconDeleteOutline fill={ theme.colors.blue } />
-                </TouchableOpacity> : null }
-              </View> }
-                </>;
-
-        }
+      }
         if (numPools === 0) {
             return <>
-                {!file?.uri ? <PDText type="bodyMedium" color="red">You don't have any pools to import.</PDText> : null}
+                <PDText type="bodyMedium" color="red">You don't have any pools to import.</PDText>
                 <PDText type="bodyMedium" color="greyDarker">Make sure you have installed and opened the latest version of the Pool Doctor app or upload a file from your device.</PDText>
                 <BoringButton title="Import from Pool Doctor" onPress={ goHome } containerStyles={ { backgroundColor: theme.colors.blue, marginTop: PDSpacing.lg  } } />
-                <BoringButton title="Import File" onPress={ pickFile } containerStyles={ { backgroundColor: theme.colors.blue, marginTop: PDSpacing.lg  } } />
-                {/* Move into import component. */}
-                { file && <View style={ { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', marginTop: PDSpacing.lg } }>
-                <PDText type="buttonSmall" color="greyDarker">{ file.name }</PDText>
-                { file.uri ? <TouchableOpacity onPress={ importCSV }>
-                  <SVG.IconImportData fill={ theme.colors.blue } />
-                </TouchableOpacity> : null }
-                {/* Remove file svg */}
-                { file.uri ? <TouchableOpacity onPress={ () => setFile(null) }>
-                  <SVG.IconDeleteOutline fill={ theme.colors.blue } />
-                </TouchableOpacity> : null }
-              </View> }
+                <Import />
             </>;
         }
         if (hasStartedImport && !hasImported) {

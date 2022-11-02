@@ -3,9 +3,11 @@ import DocumentPicker from 'react-native-document-picker';
 
 interface useFilePickerProps {
   pickFile: () => Promise<void>;
-  setFile: (file: any) => void;
-  file: File;
+  setFiles: (file: any) => void;
+  files: Files;
 }
+
+type Files = Array<File>;
 
 type File = {
   name: string;
@@ -16,25 +18,26 @@ type File = {
 }
 
 export const useFilePicker = ():useFilePickerProps => {
-  const [file, setFile] = useState({} as File);
+  const [files, setFiles] = useState([] as Files);
 
   const pickFile = async () => {
     try {
-      const res: any = await DocumentPicker.pickSingle({
+      const res: any = await DocumentPicker.pick({
         type: [DocumentPicker.types.csv],
+        allowMultiSelection: true,
       });
 
 
-      setFile(res);
+      setFiles(res);
     } catch (err) {
       if (DocumentPicker.isCancel(err)) {
         // Err msg or cancel message.
-        setFile({} as File);
+        setFiles([] as Files);
       } else {
         throw err;
       }
     }
   };
 
-  return { file, pickFile, setFile };
+  return { files, pickFile, setFiles };
 };
