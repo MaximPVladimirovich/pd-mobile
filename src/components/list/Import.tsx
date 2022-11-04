@@ -59,25 +59,25 @@ export const Import = (): any => {
     setFiles(newFiles);
   };
 
-    return (
-        <>
-        <BoringButton title="Import File" onPress={ pickFile } containerStyles={ { backgroundColor: theme.colors.blue, marginTop: PDSpacing.lg  } } />
+  return (
+    <>
+      <BoringButton title="Import from device" onPress={ pickFile } containerStyles={ { backgroundColor: theme.colors.blue, marginTop: PDSpacing.lg } } />
 
-        { files && files.map((file: any) => {
-          return (
-            <PDView key={ file.uri } style={ { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', marginTop: PDSpacing.lg } }>
-              <PDText type="buttonSmall" color="greyDarker">
-                { file.name }
-              </PDText>
-              <TouchableOpacity onPress={ () => importCSV(file) }>
-                <SVG.IconImportData fill={ theme.colors.blue } />
-              </TouchableOpacity>
-              <TouchableOpacity onPress={ () => removeFile(file) }>
-                <SVG.IconDeleteOutline fill={ theme.colors.red } />
-              </TouchableOpacity>
-            </PDView>
-          );
-        }) }
-        </>
-    );
+      { files && files.map((file: any) => {
+        return (
+          <PDView key={ file.uri } style={ { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', marginTop: PDSpacing.lg } }>
+            <PDText type="buttonSmall" color="greyDarker">
+              { file.name }
+            </PDText>
+            <TouchableOpacity onPress={ () => importCSV(file) }>
+              <SVG.IconImportData fill={ theme.colors.blue } />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={ () => removeFile(file) }>
+              <SVG.IconDeleteOutline fill={ theme.colors.red } />
+            </TouchableOpacity>
+          </PDView>
+        );
+      }) }
+    </>
+  );
 };
