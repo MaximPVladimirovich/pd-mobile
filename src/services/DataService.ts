@@ -23,10 +23,10 @@ export namespace DataService {
 
     export const newGenerateCsvFileForAllPools = () => {
       const data = {
-        dataString: 'pool_dash,export',
-        data: Database.loadPools().map((pool) => {
-          return generateJSONForPool(pool);
-      }),
+          dataString: 'pool_dash,export',
+          data: Database.loadPools().map((pool) => {
+              return generateJSONForPool(pool);
+          }),
       };
 
       const json = JSON.stringify(data);

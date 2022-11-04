@@ -17,18 +17,12 @@ export namespace ExportService {
     /// Otherwise, the csv will include all data for all pools.
     export const generateAndShareCSV = async (pool: Pool | null) => {
         let csvData = null;
-        let csvDataString = '';
         if (pool === null) {
-            const generatedCsvData = DataService.newGenerateCsvFileForAllPools();
-            csvData = generatedCsvData;
-
-            csvDataString = DataService.generateCsvFileForAllPools();
-        } else {
-            csvDataString = DataService.generateCsvFileForPool(pool);
+            csvData = DataService.newGenerateCsvFileForAllPools();
         }
 
         if (Config.isAndroid) {
-            await shareCSVAndroid(csvDataString);
+            await saveAndshareCSVAndroid(csvData);
         } else {
             await saveAndShareCSViOS(csvData);
         }
@@ -72,10 +66,11 @@ export namespace ExportService {
     /// On Android, it's more reliable to base64 encode the string into the url directly.
     /// I assume that this won't scale, and I'll have to figure out the proper mixture of
     /// project permissions & folder names eventually.
-    const shareCSVAndroid = async (stringData: string): Promise<void> => {
+    const saveAndshareCSVAndroid = async (stringData: any): Promise<void> => {
+        const { fileName } = await TempCsvRepo.saveCSVAndroid(stringData);
+
         const fileData = stringToBase64(stringData);
         const sharableURL = `data:text/comma-separated-values;base64,${fileData}`;
-        const fileName = `pd-${new Date().toISOString()}`;
 
         const options: ShareOptions = {
             url: sharableURL,

@@ -1,67 +1,60 @@
-import { useState } from 'react';
-import { Alert, PermissionsAndroid } from 'react-native';
-import DocumentPicker from 'react-native-document-picker';
+import { useEffect, useState } from 'react';
+import * as ScopedStorage from 'react-native-scoped-storage';
+import { Config } from '~/services/Config/AppConfig';
+import DocumentPicker, { DocumentPickerResponse } from 'react-native-document-picker';
 
 interface useFilePickerProps {
     pickFile: () => Promise<void>;
-    setFiles: (file: any) => void;
-    files: Files;
+    setFile: (file: any) => void;
+    file: any;
+    fileData: any;
+    finishedImport: boolean;
 }
 
-type Files = Array<File>;
-
-type File = {
-    name: string;
-    uri: string;
-    type: string;
-    fileCopyUri: string;
-    size: number;
+export type FileType = {
+  uri: string;
+  name: string;
+  path: string;
+  type: 'file' | 'directory';
+  lastModified: number;
+  data: string;
+  mime: string;
 };
 
 export const useFilePicker = (): useFilePickerProps => {
-    const [files, setFiles] = useState([] as Files);
+    // Android and ios will return slightly different file types.
+    const [file, setFile] = useState({} as FileType | DocumentPickerResponse | null | undefined);
+    const [fileData, setFileData] = useState({} as any);
+    const [finishedImport, setFinishedImport] = useState(false);
 
-    const grantPermission = async () => {
-        try {
-            const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE);
-            if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-                return true;
-            }
-            return false;
-        } catch (err) {
-            console.warn(err);
-            Alert.alert('Storage Permission Not Granted');
-            return false;
+    useEffect(() => {
+        if (file) {
+          setFinishedImport(true);
         }
-    };
+    }, [file]);
 
     const pickFile = async () => {
-        const permissionGranted = await grantPermission();
-
-        if (!permissionGranted) {
-            return;
-        } else {
             try {
-                const res: any = await DocumentPicker.pick({
-                    type: [DocumentPicker.types.csv],
-                    allowMultiSelection: true,
-                    copyTo: 'cachesDirectory',
-                });
+              if (Config.isAndroid) {
+                  const doc = await ScopedStorage.openDocument(true, 'utf8');
 
-                console.log('res', res);
+                  setFile(doc);
+                  // openDocument() also reads the file's data, This requires less steps in the import process.
+                  setFileData(doc.data);
+                  setFinishedImport(true);
+              } else if (Config.isIos) {
+                  const doc = await DocumentPicker.pickSingle({
+                      type: [DocumentPicker.types.csv],
+                  });
 
-
-                setFiles(res);
-            } catch (err) {
-                if (DocumentPicker.isCancel(err)) {
-                    // Err msg or cancel message.
-                    setFiles([] as Files);
-                } else {
-                    throw err;
+                  setFile(doc);
+                  setFinishedImport(true);
                 }
+            } catch (err) {
+                console.log(err);
+                setFile({} as FileType | DocumentPickerResponse | null | undefined);
             }
-        }
-    };
+        };
 
-    return { files, pickFile, setFiles };
+    return { file, fileData, pickFile, setFile, finishedImport };
 };

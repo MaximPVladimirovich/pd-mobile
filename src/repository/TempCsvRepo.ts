@@ -1,11 +1,13 @@
 import * as RNFS from 'react-native-fs';
 import { Util } from '~/services/Util';
-import { ImportService } from '~/services/importService';
+import * as ScopedStorage from 'react-native-scoped-storage';
+import { Alert } from 'react-native';
 
 const csvFolderName = 'csv';
 const secondsInDay = 86400;
 const fileNamePrefix = 'pooldash_';
 const fileNameSuffix = '.csv';
+const fileName = fileNamePrefix + new Date().toISOString() + fileNameSuffix;
 
 export namespace TempCsvRepo {
     /// Saves string as a csv file, returns the filepath
@@ -17,10 +19,7 @@ export namespace TempCsvRepo {
             // Make some room if needed:
             await deleteOldFiles();
 
-            // TODO: make this more robust? nah... um yeah.
-            const filename = fileNamePrefix + new Date().toISOString() + fileNameSuffix;
-            const filePath = getFilepathForFilename(filename);
-
+            const filePath = getFilepathForFilename(fileName);
 
             await RNFS.writeFile(filePath, data, 'utf8');
             return filePath;
@@ -30,20 +29,33 @@ export namespace TempCsvRepo {
         }
     };
 
-    // Since this functions is called readCSV, I am assuming it is only used for reading csv files instead of all files.
-    // TODO: decide if this this should be a default readFile function or refactor for different file types.
-    export const readCSV = async (filePath: string): Promise<any> => {
-        const fileExists = await RNFS.exists(filePath);
-        if (!fileExists) {
-            return Promise.reject('File does not exist!');
-        }
+    export const saveCSVAndroid = async (stringData: any): Promise<any> => {
+      const mime = 'text/csv';
+      const encoding = 'utf8';
+      const data = stringData;
 
-        const fileData = await RNFS.readFile(filePath, 'utf8');
+      try {
+          await ScopedStorage.openDocumentTree(true);
+          await ScopedStorage.createDocument(fileName, mime, data, encoding);
+      } catch (e) {
+          console.warn(e);
+          Alert.alert('Failed to save file.');
+      }
 
-        const csv = ImportService.convertCSV_To_JSON(fileData);
-
-        return csv;
+      return { fileName };
     };
+
+
+    export const readCSV = async (filePath: string): Promise<any> => {
+            const fileExists = await RNFS.exists(filePath);
+            if (!fileExists) {
+                return Promise.reject('File does not exist!');
+            }
+            const fileData = await RNFS.readFile(filePath, 'utf8');
+
+            return fileData;
+        };
+    }
 
     export const ensureDirectoryExists = async (): Promise<void> => {
         const dirPath = `${RNFS.DocumentDirectoryPath}/${csvFolderName}`;
@@ -97,4 +109,3 @@ export namespace TempCsvRepo {
             return Promise.reject(e);
         }
     };
-}

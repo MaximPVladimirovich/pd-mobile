@@ -13,26 +13,29 @@ import { BoringButton } from '../buttons/BoringButton';
 import { PDStackNavigationProps } from '~/navigator/shared';
 import { useNavigation } from '@react-navigation/native';
 import { Alert } from 'react-native';
-
+import { Config } from '~/services/Config/AppConfig';
+import { TempCsvRepo } from '~/repository/TempCsvRepo';
+import { readString } from 'react-native-csv';
 
 export const Import = (): any => {
-  const { setFiles, files, pickFile } = useFilePicker();
+  const { setFile, file, fileData, pickFile } = useFilePicker();
   const { navigate } = useNavigation<PDStackNavigationProps>();
   const theme = useTheme();
 
+  const importCSV = async () => {
+      let pools;
 
-  const importCSV = async (file: any) => {
-    const { data } = await ImportService.importFileAsCSV(file.uri);
+      if (Config.isAndroid) {
+        const { data: json } = readString(fileData, { header: true });
 
-    if (!data) {
-      return;
-    }
+        pools = ImportService.convertJSON_To_Pools(json);
 
-    const pools = ImportService.convertJSON_To_Pools(data);
+      } else {
+        const readFileData = await TempCsvRepo.readCSV(file.uri);
+        const { data } = ImportService.convertCSV_To_JSON(readFileData);
 
-    if (!pools) {
-      return;
-    }
+        pools = ImportService.convertJSON_To_Pools(data);
+      }
 
     const poolNames = pools.map((pool: IPool) => pool.name);
 
@@ -45,39 +48,34 @@ export const Import = (): any => {
       // if (selected)... update.
     });
 
-    removeFile(file);
+    removeFile();
     alert(poolNames);
     navigate('Home');
-};
+  };
 
-  const alert = (names:any) => {
+  const alert = (names: any) => {
     return Alert.alert('Imported', `Imported ${names.length} ${names.length === 1 ? 'pool' : 'pools'}: ${names.join(', ')}`);
   };
 
-  const removeFile = ({ uri }: any) => {
-    const newFiles = files.filter((f) => f.uri !== uri);
-    setFiles(newFiles);
+  const removeFile = () => {
+    setFile(null);
   };
 
   return (
     <>
       <BoringButton title="Import from device" onPress={ pickFile } containerStyles={ { backgroundColor: theme.colors.blue, marginTop: PDSpacing.lg } } />
 
-      { files && files.map((file: any) => {
-        return (
-          <PDView key={ file.uri } style={ { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', marginTop: PDSpacing.lg } }>
-            <PDText type="buttonSmall" color="greyDarker">
-              { file.name }
-            </PDText>
-            <TouchableOpacity onPress={ () => importCSV(file) }>
-              <SVG.IconImportData fill={ theme.colors.blue } />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={ () => removeFile(file) }>
-              <SVG.IconDeleteOutline fill={ theme.colors.red } />
-            </TouchableOpacity>
-          </PDView>
-        );
-      }) }
+      { file?.uri ? <PDView key={ file.uri } style={ { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: PDSpacing.lg } }>
+        <PDText type="buttonSmall" color="greyDarker">
+          { file.name }
+        </PDText>
+          <TouchableOpacity onPress={ () => importCSV() }>
+            <SVG.IconImportData fill={ theme.colors.blue } />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={ removeFile }>
+            <SVG.IconDeleteOutline fill={ theme.colors.red } />
+          </TouchableOpacity>
+      </PDView> : null }
     </>
   );
 };

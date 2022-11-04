@@ -24,6 +24,7 @@ import { PDButtonSolid } from '~/components/buttons/PDButtonSolid';
 import { SVG } from '~/assets/images';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Import } from '~/components/list/Import';
+// import { useFilePicker } from '~/hooks/useFilePicker';
 
 export const PoolDoctorImportScreen: React.FC = () => {
     const [hasImported, setHasImported] = useState(false);
@@ -130,12 +131,10 @@ export const PoolDoctorImportScreen: React.FC = () => {
 
     const getContent = () => {
       if (!Config.isIos) {
-        // Does pool doctor allow csv exports? If so we can change or even remove this becuase we are creating a csv import feature.
         return <>
           <PDText type="bodyMedium" color="red">
             Imports from the Pool Doctor app are not available on Android devices.
           </PDText>
-          <BoringButton title="Import File" containerStyles={ { backgroundColor: theme.colors.blue, marginTop: PDSpacing.lg } } />
           <Import />
         </>;
 
