@@ -57,7 +57,7 @@ export class PoolV3 implements IPool {
     };
 }
 
-type PoolLog = {
+export type PoolLog = {
     type: string;
     objectId: string;
     userTs: string;

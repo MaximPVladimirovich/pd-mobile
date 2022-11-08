@@ -2,8 +2,6 @@ import React from 'react';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useFilePicker } from '~/hooks/useFilePicker';
 import { IPool } from '~/models/Pool';
-import { dispatch } from '~/redux/AppState';
-import { saveNewPool } from '~/redux/selectedPool/Actions';
 import { ImportService } from '~/services/importService';
 import { PDText } from '../PDText';
 import { PDSpacing, useTheme } from '../PDTheme';
@@ -16,6 +14,7 @@ import { Alert } from 'react-native';
 import { Config } from '~/services/Config/AppConfig';
 import { TempCsvRepo } from '~/repository/TempCsvRepo';
 import { readString } from 'react-native-csv';
+import { Database } from '~/repository/Database';
 
 export const Import = (): any => {
   const { setFile, file, fileData, pickFile } = useFilePicker();
@@ -40,7 +39,7 @@ export const Import = (): any => {
     const poolNames = pools.map((pool: IPool) => pool.name);
 
     pools.map((pool: IPool) => {
-      dispatch(saveNewPool(pool));
+      Database.saveNewPool(pool);
 
       // TODO: check for existing pools and update them instead.
       // I've attempted the something similar to below but it doesn't work.

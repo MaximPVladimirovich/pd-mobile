@@ -46,10 +46,8 @@ export namespace ImportService {
     };
 
     export const convertJSON_To_Pools = (json: any): Array<PoolV3> => {
-        const pools = json.map((pool: any) => {
-            const { logs } = pool;
-
-            const parsedLogs = JSON.parse(logs);
+        const pools = json.forEach((pool: any): PoolV3 => {
+          // TODO: parse logs.
 
             const newPool = {
                 objectId: pool.objectId,
@@ -58,13 +56,16 @@ export namespace ImportService {
                 gallons: parseInt(pool.usGallons, 10),
                 wallType: pool.wallType,
                 formulaId: pool.formulaId,
-                logs: parsedLogs,
+                logs: pool.logs,
                 imperialGallons: parseInt(pool.imperialGallons, 10),
                 liters: parseInt(pool.liters, 10),
             };
 
             return newPool;
         });
+
+        console.log('pools', pools);
+
 
         return pools;
     };
