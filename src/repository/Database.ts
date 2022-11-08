@@ -47,7 +47,7 @@ export class Database {
         return results;
     };
 
-    static saveNewPool = (unsavedPool: IPool): IPool => {
+    static saveNewPool = (unsavedPool: IPool): IPool | null => {
         const realm = Database.realm;
         const pool: IPool = {
             ...unsavedPool,
@@ -68,6 +68,8 @@ export class Database {
         } catch (e) {
             console.log(e);
             console.error("Couldn't save pool.");
+
+            return null;
         }
         return pool;
     };
@@ -92,7 +94,7 @@ export class Database {
             });
             return Promise.resolve();
         } catch (e) {
-            return Promise.reject('error saving entry');
+            return null;
         }
     };
 

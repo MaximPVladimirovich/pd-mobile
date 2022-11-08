@@ -15,6 +15,7 @@ import { Config } from '~/services/Config/AppConfig';
 import { TempCsvRepo } from '~/repository/TempCsvRepo';
 import { readString } from 'react-native-csv';
 import { Database } from '~/repository/Database';
+import { LogEntryV4 } from '~/models/logs/LogEntry/LogEntryV4';
 
 export const Import = (): any => {
   const { setFile, file, fileData, pickFile } = useFilePicker();
@@ -23,6 +24,7 @@ export const Import = (): any => {
 
   const importCSV = async () => {
       let pools;
+      let numberOfErrors = 0;
 
       if (Config.isAndroid) {
         const { data: json } = readString(fileData, { header: true });
@@ -38,22 +40,39 @@ export const Import = (): any => {
 
     const poolNames = pools.map((pool: IPool) => pool.name);
 
-    pools.map((pool: IPool) => {
-      Database.saveNewPool(pool);
+    pools.map((pool: any) => {
+      const savePool = Database.saveNewPool(pool);
 
-      // TODO: check for existing pools and update them instead.
-      // I've attempted the something similar to below but it doesn't work.
-      // const selected = dispatch(selectPool(pool));
-      // if (selected)... update.
+      if (savePool === null || savePool === undefined) {
+        numberOfErrors += 1;
+
+        return;
+      }
+
+      const { logs } = pool;
+
+      logs.length > 0 && logs.map((log: LogEntryV4) => {
+        Database.saveNewLogEntry(log);
+      });
     });
 
+    if (numberOfErrors > 0) {
+      alertFailure(numberOfErrors);
+      numberOfErrors = 0;
+    } else {
+      alertSuccess(poolNames);
+    }
+
     removeFile();
-    alert(poolNames);
     navigate('Home');
   };
 
-  const alert = (names: any) => {
-    return Alert.alert('Imported', `Imported ${names.length} ${names.length === 1 ? 'pool' : 'pools'}: ${names.join(', ')}`);
+  const alertSuccess = (names: Array<string>) => {
+    Alert.alert('Imported', `Imported ${names.length} ${names.length === 1 ? 'pool' : 'pools'}: ${names.join(', ')}`);
+  };
+
+  const alertFailure = (numberOfErrors: number) => {
+    Alert.alert('Error', `There were ${numberOfErrors} errors while importing the CSV file. Please check the file and try again.`);
   };
 
   const removeFile = () => {

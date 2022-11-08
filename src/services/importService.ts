@@ -1,18 +1,13 @@
-// This service should recieve a file and return a list of objects.
 import { TempCsvRepo } from '../repository/TempCsvRepo';
 import { readString } from 'react-native-csv';
 import { PoolV3 } from '../models/Pool/PoolV3';
 export { PoolV3 as Pool } from '../models/Pool/PoolV3';
 
 
-type convertCSV_To_JSONProps = {
-    data: Array<PoolV3>;
+type ConvertCSV_To_JSONProps = {
+    data: Array<any>;
     errors: Array<errors>;
     meta: Meta;
-};
-
-type Logs = {
-    objectId: string;
 };
 
 type errors = {
@@ -27,7 +22,7 @@ type Meta = {
     delimiter: string;
     linebreak: string;
     truncated: boolean;
-    fields: Array<string>;
+    fields?: Array<string> | undefined;
 };
 
 export namespace ImportService {
@@ -37,7 +32,7 @@ export namespace ImportService {
         return csv;
     };
 
-    export const convertCSV_To_JSON = (csvData: string): any => {
+    export const convertCSV_To_JSON = (csvData: string): ConvertCSV_To_JSONProps => {
         const data = readString(csvData, {
             header: true,
         });
@@ -46,26 +41,22 @@ export namespace ImportService {
     };
 
     export const convertJSON_To_Pools = (json: any): Array<PoolV3> => {
-        const pools = json.forEach((pool: any): PoolV3 => {
-          // TODO: parse logs.
+        const pools = json.map((pool: any): PoolV3 => {
 
             const newPool = {
                 objectId: pool.objectId,
-                name: pool.pool,
+                name: pool.name,
                 waterType: pool.waterType,
-                gallons: parseInt(pool.usGallons, 10),
+                gallons: parseInt(pool.gallons, 10),
                 wallType: pool.wallType,
                 formulaId: pool.formulaId,
-                logs: pool.logs,
+                logs: JSON.parse(pool.logs),
                 imperialGallons: parseInt(pool.imperialGallons, 10),
                 liters: parseInt(pool.liters, 10),
             };
 
             return newPool;
         });
-
-        console.log('pools', pools);
-
 
         return pools;
     };

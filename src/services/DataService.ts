@@ -10,6 +10,7 @@ import { Util } from './Util';
 import { ReadingEntryV2 } from '~/models/logs/ReadingEntry/ReadingEntryV2';
 import { TreatmentEntryV2 } from '~/models/logs/TreatmentEntry/TreatmentEntryV2';
 import { LogEntryV4 } from '~/models/logs/LogEntry/LogEntryV4';
+import { PoolV3 } from '~/models/Pool/PoolV3';
 
 export namespace DataService {
     /// Returns the base64 encoded file data.
@@ -27,6 +28,7 @@ export namespace DataService {
 
     export const newGenerateCsvFileForAllPools = () => {
       const data = {
+        // Maybe not needed.
           dataString: 'pool_dash,export',
           data: Database.loadPools().map((pool) => {
               return generateJSONForPool(pool);
@@ -41,7 +43,7 @@ export namespace DataService {
 
     };
 
-    export const generateJSONForPool = (pool: any): any => {
+    export const generateJSONForPool = (pool: PoolV3): any => {
       const logsToJson = Database.loadLogEntriesForPool(pool.objectId, null, true).map((log: any): LogEntryV4 => {
         return newGetRowsForEntry(log);
       });
@@ -55,7 +57,7 @@ export namespace DataService {
         wallType: pool.wallType,
         formulaId: pool.formulaId,
         objectId: pool.objectId,
-        logs: logsToJson,
+        logs: JSON.stringify(logsToJson),
       };
 
       return data;
@@ -64,7 +66,7 @@ export namespace DataService {
 
     const newGetRowsForEntry = (entry: any): LogEntryV4 => {
 
-      const readingEntries = entry.readingEntries.forEach((reading: ReadingEntryV2): ReadingEntryV2 => {
+      const readingEntries = entry.readingEntries.map((reading: ReadingEntryV2): ReadingEntryV2 => {
         return {
           readingName: reading.readingName,
           id: reading.id,
@@ -73,7 +75,7 @@ export namespace DataService {
         };
       });
 
-      const treatmentEntries = entry.treatmentEntries.forEach((treatment: TreatmentEntryV2): TreatmentEntryV2  => {
+      const treatmentEntries = entry.treatmentEntries.map((treatment: TreatmentEntryV2): TreatmentEntryV2  => {
         return {
           type: treatment.type,
           treatmentName: Util.getDisplayNameForTreatment({ name: treatment.treatmentName, concentration: treatment.concentration }),
