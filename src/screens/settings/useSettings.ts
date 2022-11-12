@@ -44,7 +44,7 @@ export const useSettings = () => {
         navigate('Subscription');
     };
     const handleNavigatePoolDoctorImport = () => {
-        navigate('PoolDoctorImport');
+        navigate('Import');
     };
     const handleNavigateThemeToggled = () => {
         navigate('ThemeToggleScreen');

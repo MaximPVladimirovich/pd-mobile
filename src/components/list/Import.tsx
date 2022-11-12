@@ -81,7 +81,11 @@ export const Import = (): any => {
 
   return (
     <>
-      <BoringButton title="Import from device" onPress={ pickFile } containerStyles={ { backgroundColor: theme.colors.blue, marginTop: PDSpacing.lg } } />
+    <PDText type="heading" color="black">CSV Import</PDText>
+          <PDText type="bodyRegular" color="greyDark">
+            Want to import pools from a .csv file?
+          </PDText>
+      <BoringButton title="Import from csv" onPress={ pickFile } containerStyles={ { backgroundColor: theme.colors.blue, marginTop: PDSpacing.lg } } />
 
       { file?.uri ? <PDView key={ file.uri } style={ { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: PDSpacing.lg } }>
         <PDText type="buttonSmall" color="greyDarker">

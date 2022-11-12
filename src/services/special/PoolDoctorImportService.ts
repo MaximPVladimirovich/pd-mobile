@@ -37,9 +37,13 @@ export namespace PoolDoctorImportService {
         const existingPool = Util.firstOrNull(RealmUtil.poolsToPojo(matchingPools));
 
         if (existingPool) {
+            console.log('Skipped!!!');
+            console.warn('Pool doctor id: ' + p.poolDoctorId);
             poolStatus = 'skipped';
             p.objectId = existingPool.objectId;
         } else {
+            console.log('suuuuuucccccccccceeeesssssssss');
+            console.warn('Pool doctor id: ' + p.poolDoctorId);
             await Database.saveNewPool(p);
             poolStatus = 'created';
         }
