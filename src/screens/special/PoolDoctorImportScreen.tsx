@@ -140,12 +140,7 @@ export const PoolDoctorImportScreen: React.FC = () => {
 
       }
         if (numPools === 0) {
-            return <>
-                <PDText type="bodyMedium" color="red">You don't have any pools to import.</PDText>
-                <PDText type="bodyMedium" color="greyDarker">Make sure you have installed and opened the latest version of the Pool Doctor app or upload a file from your device.</PDText>
-                <BoringButton title="Import from Pool Doctor" onPress={ goHome } containerStyles={ { backgroundColor: theme.colors.blue, marginTop: PDSpacing.lg  } } />
-                <Import />
-            </>;
+            return <></>;
         }
         if (hasStartedImport && !hasImported) {
             return <PDText type="subHeading" color="greyDarker">Working...</PDText>;
