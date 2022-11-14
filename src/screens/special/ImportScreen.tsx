@@ -2,30 +2,24 @@ import * as React from 'react';
 import { PDMigrator } from '~/services/migrator/NativeModule';
 import { useCallback, useEffect } from 'react';
 import { useState } from 'react';
-import { Alert, NativeEventEmitter, StyleSheet } from 'react-native';
+import { NativeEventEmitter, StyleSheet } from 'react-native';
 import { ScreenHeader } from '~/components/headers/ScreenHeader';
 import { PDSafeAreaView } from '~/components/PDSafeAreaView';
 import { PDText } from '~/components/PDText';
 import { PDSpacing, useTheme } from '~/components/PDTheme';
-import { PlayButton } from '~/components/buttons/PlayButton';
 import { PDView } from '~/components/PDView';
 import { PoolDoctorImportService, PoolDoctorPool } from '~/services/special/PoolDoctorImportService';
 import { useNavigation } from '@react-navigation/native';
 import { PDStackNavigationProps } from '~/navigator/shared';
 import { useImportablePools } from './PoolDoctorImportHooks';
-import { Haptic } from '~/services/HapticService';
-import { BoringButton } from '~/components/buttons/BoringButton';
-import pluralize from 'pluralize';
 import { ScrollView } from 'react-native-gesture-handler';
 import { ForumPrompt } from '../home/footer/ForumPrompt';
 import { useStandardStatusBar } from '~/hooks/useStatusBar';
 import { Config } from '~/services/Config/AppConfig';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Import } from '~/components/list/Import';
 import { HR } from '~/components/Hr';
-import { TextButton } from '~/components/buttons/TextButton';
-import { PDButton } from '~/components/buttons/PDButton';
 import { PDButtonSolid } from '~/components/buttons/PDButtonSolid';
+import { PDButton } from '~/components/buttons/PDButton';
 
 export const ImportScreen: React.FC = () => {
     const [hasImported, setHasImported] = useState(false);
@@ -74,6 +68,10 @@ export const ImportScreen: React.FC = () => {
         };
     }, [poolListener]);
 
+    const goToImportFromDevice = () => {
+      navigate('ImportFromDevice');
+    };
+
     const getPoolDoctorContent = () => {
       if (Config.isIos && numPools > 0) {
         return <>
@@ -82,6 +80,7 @@ export const ImportScreen: React.FC = () => {
             Want to import pools from the Pool Doctor app?
           </PDText>
           <PDButtonSolid onPress={ handlePressedPoolDoctor } title="Import from Pool Doctor" textColor="black"/>
+          <HR/>
         </>;
       }
       return <></>;
@@ -95,8 +94,7 @@ export const ImportScreen: React.FC = () => {
             <ScrollView style={ { flex: 1 } } contentInset={ { bottom: insets.bottom } }>
                 <PDView style={ styles.container }>
                     { getPoolDoctorContent() }
-                    <HR />
-                    <Import />
+                    <PDButton onPress={ goToImportFromDevice }>Import from Device</PDButton>
                     <PDText type="bodyMedium" color="greyDarker" style={ { marginTop: PDSpacing.xl } }>Want to import pools from somewhere else? Tell us on the support forum:</PDText>
                     <ForumPrompt />
                 </PDView>

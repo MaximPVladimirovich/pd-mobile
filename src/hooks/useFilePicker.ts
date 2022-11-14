@@ -1,14 +1,14 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import * as ScopedStorage from 'react-native-scoped-storage';
 import { Config } from '~/services/Config/AppConfig';
 import DocumentPicker, { DocumentPickerResponse } from 'react-native-document-picker';
+import { Alert } from 'react-native';
 
 interface useFilePickerProps {
     pickFile: () => Promise<void>;
-    setFile: (file: any) => void;
     file: any;
     fileData: any;
-    finishedImport: boolean;
+    isLoaded: boolean;
 }
 
 export type FileType = {
@@ -22,33 +22,38 @@ export type FileType = {
 };
 
 export const useFilePicker = (): useFilePickerProps => {
-    // Android and ios will return slightly different file types.
+    // Android and ios will return slightly different file responses.
     const [file, setFile] = useState({} as FileType | DocumentPickerResponse | null | undefined);
     const [fileData, setFileData] = useState({} as any);
-    const [finishedImport, setFinishedImport] = useState(false);
-
-    useEffect(() => {
-        if (file) {
-          setFinishedImport(true);
-        }
-    }, [file]);
+    const [isLoaded, setIsLoaded] = useState(false);
 
     const pickFile = async () => {
             try {
               if (Config.isAndroid) {
                   const doc = await ScopedStorage.openDocument(true, 'utf8');
 
+                  console.log(doc.mime);
+
+
+                  if (doc.mime !== 'text/comma-separated-values') {
+                      Alert.alert('Invalid File Type', 'Please select a CSV file.');
+                      setFile(null);
+                      setFileData(null);
+                      setIsLoaded(false);
+                      return;
+                  }
+
                   setFile(doc);
                   // openDocument() also reads the file's data, This requires less steps in the import process.
-                  setFileData(doc.data);
-                  setFinishedImport(true);
+                  setFileData(doc?.data);
+                  setIsLoaded(true);
               } else if (Config.isIos) {
                   const doc = await DocumentPicker.pickSingle({
                       type: [DocumentPicker.types.csv],
                   });
 
                   setFile(doc);
-                  setFinishedImport(true);
+                  setIsLoaded(true);
                 }
             } catch (err) {
                 console.log(err);
@@ -56,5 +61,5 @@ export const useFilePicker = (): useFilePickerProps => {
             }
         };
 
-    return { file, fileData, pickFile, setFile, finishedImport };
+    return { file, fileData, pickFile, isLoaded };
 };

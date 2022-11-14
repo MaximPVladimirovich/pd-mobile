@@ -23,8 +23,7 @@ import { Config } from '~/services/Config/AppConfig';
 import { PDButtonSolid } from '~/components/buttons/PDButtonSolid';
 import { SVG } from '~/assets/images';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Import } from '~/components/list/Import';
-// import { useFilePicker } from '~/hooks/useFilePicker';
+import { PDButton } from '~/components/buttons/PDButton';
 
 export const PoolDoctorImportScreen: React.FC = () => {
     const [hasImported, setHasImported] = useState(false);
@@ -109,6 +108,10 @@ export const PoolDoctorImportScreen: React.FC = () => {
         );
     };
 
+    const goToImportFromDevice = () => {
+      navigate('ImportFromDevice');
+    };
+
     const handleDeleteConfirmed = async () => {
         PoolDoctorImportService.deleteAllPoolDoctorPools();
         navigate('Home');
@@ -135,7 +138,7 @@ export const PoolDoctorImportScreen: React.FC = () => {
           <PDText type="bodyMedium" color="red">
             Imports from the Pool Doctor app are not available on Android devices.
           </PDText>
-          <Import />
+          <PDButton onPress={ goToImportFromDevice }>Import from Device</PDButton>
         </>;
 
       }

@@ -18,6 +18,7 @@ import { TermsScreen } from '~/screens/subscription/TermsScreen';
 import { PrivacyScreen } from '~/screens/subscription/PrivacyScreen';
 import { PoolDoctorImportScreen } from '~/screens/special/PoolDoctorImportScreen';
 import { ImportScreen } from '~/screens/special/ImportScreen';
+import { ImportFromDeviceScreen } from '~/screens/special/ImportFromDeviceScreen';
 
 // This defines the navigation params accepted by each possible screen in PDCardNavigator
 export type PDCardNavigatorParams = {
@@ -36,6 +37,7 @@ export type PDCardNavigatorParams = {
     ScoopsList: undefined;
     Import: undefined;
     PoolDoctorImport: undefined;
+    ImportFromDevice: undefined;
 };
 
 const CardStack = createStackNavigator<PDCardNavigatorParams>();
@@ -67,6 +69,7 @@ export const PDCardNavigator = (): JSX.Element => {
             <CardStack.Screen name="ScoopsList" component={ ScoopsListScreen }  />
             <CardStack.Screen name="Import" component={ ImportScreen }  />
             <CardStack.Screen name="PoolDoctorImport" component={ PoolDoctorImportScreen }  />
+            <CardStack.Screen name="ImportFromDevice" component={ ImportFromDeviceScreen } />
         </CardStack.Navigator>
     );
 };

@@ -1,16 +1,14 @@
-import React from 'react';
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import React, { useEffect, useState } from 'react';
 import { useFilePicker } from '~/hooks/useFilePicker';
 import { IPool } from '~/models/Pool';
 import { ImportService } from '~/services/importService';
 import { PDText } from '../PDText';
 import { PDSpacing, useTheme } from '../PDTheme';
 import { PDView } from '../PDView';
-import { SVG } from '~/assets/images';
 import { BoringButton } from '../buttons/BoringButton';
 import { PDStackNavigationProps } from '~/navigator/shared';
 import { useNavigation } from '@react-navigation/native';
-import { Alert } from 'react-native';
+import { Alert, StyleSheet } from 'react-native';
 import { Config } from '~/services/Config/AppConfig';
 import { TempCsvRepo } from '~/repository/TempCsvRepo';
 import { readString } from 'react-native-csv';
@@ -18,26 +16,38 @@ import { Database } from '~/repository/Database';
 import { LogEntryV4 } from '~/models/logs/LogEntry/LogEntryV4';
 
 export const Import = (): any => {
-  const { setFile, file, fileData, pickFile } = useFilePicker();
+  const { file, fileData, pickFile, isLoaded } = useFilePicker();
+  const [pools, setPools] = useState([] as any);
   const { navigate } = useNavigation<PDStackNavigationProps>();
   const theme = useTheme();
+  const styles = getStyles(theme, StyleSheet);
 
-  const importCSV = async () => {
-      let pools;
-      let numberOfErrors = 0;
+  useEffect(() => {
 
+    const importCSV = async () => {
       if (Config.isAndroid) {
-        const { data: json } = readString(fileData, { header: true });
+        const data = readString(fileData, { header: true });
+        const result = ImportService.convertJSON_To_Pools(data?.data);
 
-        pools = ImportService.convertJSON_To_Pools(json);
-
+        setPools(result);
       } else {
         const readFileData = await TempCsvRepo.readCSV(file.uri);
         const { data } = ImportService.convertCSV_To_JSON(readFileData);
 
-        pools = ImportService.convertJSON_To_Pools(data);
-      }
+        const result = ImportService.convertJSON_To_Pools(data);
 
+        setPools(result);
+      }
+    };
+
+    if (isLoaded) {
+      importCSV();
+    }
+
+  }, [file, fileData, isLoaded]);
+
+  const savePools = () => {
+    let numberOfErrors = 0;
     const poolNames = pools.map((pool: IPool) => pool.name);
 
     pools.map((pool: any) => {
@@ -59,12 +69,11 @@ export const Import = (): any => {
     if (numberOfErrors > 0) {
       alertFailure(numberOfErrors);
       numberOfErrors = 0;
+      setPools([]);
     } else {
       alertSuccess(poolNames);
+      navigate('Home');
     }
-
-    removeFile();
-    navigate('Home');
   };
 
   const alertSuccess = (names: Array<string>) => {
@@ -75,29 +84,33 @@ export const Import = (): any => {
     Alert.alert('Error', `There were ${numberOfErrors} errors while importing the CSV file. Please check the file and try again.`);
   };
 
-  const removeFile = () => {
-    setFile(null);
-  };
-
   return (
-    <>
-    <PDText type="heading" color="black">CSV Import</PDText>
-          <PDText type="bodyRegular" color="greyDark">
-            Want to import pools from a .csv file?
-          </PDText>
-      <BoringButton title="Import from csv" onPress={ pickFile } containerStyles={ { backgroundColor: theme.colors.blue, marginTop: PDSpacing.lg } } />
-
-      { file?.uri ? <PDView key={ file.uri } style={ { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: PDSpacing.lg } }>
-        <PDText type="buttonSmall" color="greyDarker">
-          { file.name }
-        </PDText>
-          <TouchableOpacity onPress={ () => importCSV() }>
-            <SVG.IconImportData fill={ theme.colors.blue } />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={ removeFile }>
-            <SVG.IconDeleteOutline fill={ theme.colors.red } />
-          </TouchableOpacity>
-      </PDView> : null }
-    </>
+    <PDView style={ styles.container }>
+      <PDText type="heading" color="black">CSV Import</PDText>
+      <PDText type="bodyRegular" color="greyDark">
+        Want to import pools from a .csv file?
+      </PDText>
+      <BoringButton title={ pools.length > 0 ? `Import ${pools.length} pools` : 'Import' } onPress={ pools.length > 0 && isLoaded ? savePools : pickFile } containerStyles={ styles.boringButtonContainer } />
+    </PDView>
   );
+};
+
+const getStyles = (theme: any, styleSheet: any) => {
+  return styleSheet.create({
+    container: {
+      flex: 1,
+      padding: PDSpacing.md,
+    },
+    fileListContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginTop: PDSpacing.lg,
+    },
+    boringButtonContainer: {
+      backgroundColor: theme.colors.blue,
+      marginTop: PDSpacing.lg,
+    },
+
+  });
 };
