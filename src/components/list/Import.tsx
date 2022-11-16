@@ -14,10 +14,14 @@ import { TempCsvRepo } from '~/repository/TempCsvRepo';
 import { readString } from 'react-native-csv';
 import { Database } from '~/repository/Database';
 import { LogEntryV4 } from '~/models/logs/LogEntry/LogEntryV4';
+import pluralize from 'pluralize';
+import { PDButtonSolid } from '../buttons/PDButtonSolid';
+import { SVG } from '~/assets/images';
 
 export const Import = (): any => {
-  const { file, fileData, pickFile, isLoaded } = useFilePicker();
+  const { file, fileData, pickFile, isLoaded, reset } = useFilePicker();
   const [pools, setPools] = useState([] as any);
+  const [isImported, setIsImported] = useState(false);
   const { navigate } = useNavigation<PDStackNavigationProps>();
   const theme = useTheme();
   const styles = getStyles(theme, StyleSheet);
@@ -29,6 +33,7 @@ export const Import = (): any => {
         const data = readString(fileData, { header: true });
         const result = ImportService.convertJSON_To_Pools(data?.data);
 
+        // Handle the case where the user has no pools in their CSV
         setPools(result);
       } else {
         const readFileData = await TempCsvRepo.readCSV(file.uri);
@@ -70,10 +75,19 @@ export const Import = (): any => {
       alertFailure(numberOfErrors);
       numberOfErrors = 0;
       setPools([]);
+      handleCancelImport();
     } else {
       alertSuccess(poolNames);
-      navigate('Home');
+      setIsImported(true);
     }
+  };
+
+  const handleCancelImport = () => {
+    reset(setPools, setIsImported);
+  };
+
+  const goHome = () => {
+    navigate('Home');
   };
 
   const alertSuccess = (names: Array<string>) => {
@@ -90,7 +104,22 @@ export const Import = (): any => {
       <PDText type="bodyRegular" color="greyDark">
         Want to import pools from a .csv file?
       </PDText>
-      <BoringButton title={ pools.length > 0 ? `Import ${pools.length} pools` : 'Import' } onPress={ pools.length > 0 && isLoaded ? savePools : pickFile } containerStyles={ styles.boringButtonContainer } />
+      { pools?.length > 0 &&
+        <PDText type="subHeading" color="greyDarker">
+          { pools.length } { pluralize('pool', pools.length) } found!
+        </PDText>
+      }
+      <BoringButton title={ pools.length > 0 ? isImported ? 'Go Home' : `Import ${pools.length} pools` : 'Import' } onPress={ pools.length > 0 && isLoaded ? isImported ? goHome : savePools : pickFile } containerStyles={ styles.boringButtonContainer } />
+      <PDText type="bodyRegular" color="greyDark" style={ styles.cancelButtonContainer }>
+        Want to start over? You can delete everything imported.
+      </PDText>
+      <PDButtonSolid
+        bgColor="red"
+        textColor="alwaysWhite"
+        onPress={ handleCancelImport }
+        icon={ <SVG.IconDeleteOutline fill={ theme.colors.alwaysWhite } /> }
+        title="Undo Import"
+        style={ styles.cancelButton } />
     </PDView>
   );
 };
@@ -99,7 +128,6 @@ const getStyles = (theme: any, styleSheet: any) => {
   return styleSheet.create({
     container: {
       flex: 1,
-      padding: PDSpacing.md,
     },
     fileListContainer: {
       flexDirection: 'row',
@@ -111,6 +139,12 @@ const getStyles = (theme: any, styleSheet: any) => {
       backgroundColor: theme.colors.blue,
       marginTop: PDSpacing.lg,
     },
-
+    cancelButtonContainer: {
+      marginTop: PDSpacing.xl,
+    },
+    cancelButton: {
+      marginBottom: PDSpacing.xl,
+      marginTop: PDSpacing.sm,
+    },
   });
 };

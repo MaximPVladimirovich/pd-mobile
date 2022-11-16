@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ScreenHeader } from '~/components/headers/ScreenHeader';
 import { Import } from '~/components/list/Import';
 import { PDSafeAreaView } from '~/components/PDSafeAreaView';
+// import { PDText } from '~/components/PDText';
 import { PDSpacing, useTheme } from '~/components/PDTheme';
 import { PDView } from '~/components/PDView';
 
@@ -19,7 +20,7 @@ export const ImportFromDeviceScreen = (): JSX.Element => {
         </ScreenHeader>
         <ScrollView style={ styles.scrollView } contentInset={ styles.contentInset }>
           <PDView style={ styles.bodyContainer }>
-            <Import />
+            <Import/>
           </PDView>
         </ScrollView>
       </PDSafeAreaView>

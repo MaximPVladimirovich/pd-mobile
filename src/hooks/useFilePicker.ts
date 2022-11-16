@@ -9,6 +9,7 @@ interface useFilePickerProps {
     file: any;
     fileData: any;
     isLoaded: boolean;
+    reset: (arg0: Function, arg1: Function) => void;
 }
 
 export type FileType = {
@@ -31,9 +32,6 @@ export const useFilePicker = (): useFilePickerProps => {
             try {
               if (Config.isAndroid) {
                   const doc = await ScopedStorage.openDocument(true, 'utf8');
-
-                  console.log(doc.mime);
-
 
                   if (doc.mime !== 'text/comma-separated-values') {
                       Alert.alert('Invalid File Type', 'Please select a CSV file.');
@@ -61,5 +59,13 @@ export const useFilePicker = (): useFilePickerProps => {
             }
         };
 
-    return { file, fileData, pickFile, isLoaded };
+        const reset = (setPools: Function, setIsImported: Function) => {
+            setFile(null);
+            setFileData(null);
+            setIsLoaded(false);
+            setPools([]);
+            setIsImported(false);
+        };
+
+    return { file, fileData, pickFile, isLoaded, reset };
 };
