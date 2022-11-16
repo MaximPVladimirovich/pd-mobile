@@ -21,11 +21,16 @@ export const Import = (): any => {
   const { file, fileData, pickFile, isLoaded, reset } = useFilePicker();
   const [pools, setPools] = useState([] as any);
   const [isImported, setIsImported] = useState(false);
+  const [importing, setImporting] = useState(false);
   const [poolImportStats, setPoolImportStats] = useState({
-    poolsImported: 0,
-    logsImported: 0,
-    poolsNotImported: 0,
-    logsNotImported: 0,
+    imported: {
+      pools: 0,
+      logs: 0,
+    },
+    notImported: {
+      pools: 0,
+      logs: 0,
+    },
   });
   const { navigate } = useNavigation<PDStackNavigationProps>();
   const theme = useTheme();
@@ -54,9 +59,10 @@ export const Import = (): any => {
       importCSV();
     }
 
-  }, [file, fileData, isLoaded]);
+  }, [file, fileData, isLoaded, isImported]);
 
   const savePools = () => {
+    setImporting(true);
     let numberOfErrors = 0;
     let logErrors = 0;
     const numOfLogs = pools.reduce((acc: number, pool: any) => pool.logs.length + acc, 0);
@@ -79,10 +85,14 @@ export const Import = (): any => {
     });
 
     setPoolImportStats({
-      poolsImported: pools.length - numberOfErrors,
-      logsImported: numOfLogs - logErrors,
-      poolsNotImported: numberOfErrors,
-      logsNotImported: logErrors,
+      imported: {
+        pools: pools.length - numberOfErrors,
+        logs: numOfLogs - logErrors,
+      },
+      notImported: {
+        pools: numberOfErrors,
+        logs: logErrors,
+      },
     });
 
 
@@ -123,18 +133,22 @@ export const Import = (): any => {
       {
         isImported && (
           <PDView style={ styles.importStats }>
-            <PDText type="bodyRegular" color="greyDark">
-              { poolImportStats.poolsImported } { pluralize('pool', poolImportStats.poolsImported) } imported
-            </PDText>
-            <PDText type="bodyRegular" color="greyDark">
-              { poolImportStats.logsImported } { pluralize('log', poolImportStats.logsImported) } imported
-            </PDText>
-            <PDText type="bodyRegular" color="greyDark">
-              { poolImportStats.poolsNotImported } { pluralize('pool', poolImportStats.poolsNotImported) } not imported
-            </PDText>
-            <PDText type="bodyRegular" color="greyDark">
-              { poolImportStats.logsNotImported } { pluralize('log', poolImportStats.logsNotImported) } not imported
-            </PDText>
+            {
+              Object.keys(poolImportStats).map((key: string) => {
+                const { pools, logs } = poolImportStats[key];
+                const action = key === 'imported' ? 'Imported' : 'Not Imported';
+
+                return (
+                  <>
+                    <PDText type="subHeading" color="greyDarker">
+                      { pools } { pluralize('pool', pools) } { action }
+                    </PDText>
+                    <PDText type="subHeading" color="greyDarker">
+                      { logs } { pluralize('logs', logs) } { action }
+                    </PDText></>
+                );
+              })
+            }
           </PDView>
         )
       }
@@ -143,8 +157,8 @@ export const Import = (): any => {
         Want to start over? You can delete everything imported.
       </PDText>
       <PDButtonSolid
-        disabled={  !pools.length }
-        bgColor={ !pools.length ? 'grey' : 'red' }
+        disabled={  !pools.length || importing }
+        bgColor={ !pools.length || importing ? 'grey' : 'red' }
         textColor="alwaysWhite"
         onPress={ handleCancelImport }
         icon={ <SVG.IconDeleteOutline fill={ theme.colors.alwaysWhite } /> }
