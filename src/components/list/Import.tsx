@@ -65,7 +65,7 @@ export const Import = (): any => {
     setImporting(true);
     let numberOfErrors = 0;
     let logErrors = 0;
-    const numOfLogs = pools.reduce((acc: number, pool: any) => pool.logs.length + acc, 0);
+    const totalLogs = pools.reduce((acc: number, pool: any) => pool.logs.length + acc, 0);
 
     pools.map((pool: any) => {
       const savePool = Database.saveNewPool(pool);
@@ -87,7 +87,7 @@ export const Import = (): any => {
     setPoolImportStats({
       imported: {
         pools: pools.length - numberOfErrors,
-        logs: numOfLogs - logErrors,
+        logs: totalLogs - logErrors,
       },
       notImported: {
         pools: numberOfErrors,
@@ -124,14 +124,8 @@ export const Import = (): any => {
     Alert.alert('Error', `There were ${numberOfErrors} errors while importing the CSV file. Please check the file and try again.`);
   };
 
-  return (
-    <PDView style={ styles.container }>
-      <PDText type="heading" color="black">CSV Import</PDText>
-      <PDText type="bodyRegular" color="greyDark">
-        Want to import pools from a .csv file?
-      </PDText>
-      {
-        isImported && (
+  const ImportStats = () => {
+    return isImported ? (
           <PDView style={ styles.importStats }>
             {
               Object.keys(poolImportStats).map((key: string) => {
@@ -150,9 +144,41 @@ export const Import = (): any => {
               })
             }
           </PDView>
-        )
-      }
-      <BoringButton title={ pools.length > 0 ? isImported ? 'Go Home' : `Import ${pools.length} pools` : 'Import' } onPress={ pools.length > 0 && isLoaded ? isImported ? goHome : savePools : pickFile } containerStyles={ styles.boringButtonContainer } />
+        ) : null;
+      };
+
+      const importButtonText = () => {
+        if (pools.length) {
+          if (isImported) {
+            return 'Go Home';
+          } else {
+            return `Import ${pools.length} ${pluralize('pool', pools.length)}`;
+          }
+        } else {
+          return 'Import';
+        }
+      };
+
+      const importButtonOnPress = () => {
+        if (pools.length && isLoaded) {
+          if (isImported) {
+            goHome();
+          } else {
+            savePools();
+          }
+        } else {
+          pickFile();
+        }
+      };
+
+  return (
+    <PDView style={ styles.container }>
+      <PDText type="heading" color="black">CSV Import</PDText>
+      <PDText type="bodyRegular" color="greyDark">
+        Want to import pools from a .csv file?
+      </PDText>
+      <ImportStats/>
+      <BoringButton title={ importButtonText() } onPress={ importButtonOnPress } containerStyles={ styles.boringButtonContainer } />
       <PDText type="bodyRegular" color="greyDark" style={ styles.cancelButtonContainer }>
         Want to start over? You can delete everything imported.
       </PDText>
