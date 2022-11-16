@@ -94,6 +94,7 @@ export class Database {
             });
             return Promise.resolve();
         } catch (e) {
+            console.log("Couldn't save log entry.");
             return null;
         }
     };

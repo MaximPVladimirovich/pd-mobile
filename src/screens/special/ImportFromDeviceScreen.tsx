@@ -5,10 +5,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ScreenHeader } from '~/components/headers/ScreenHeader';
 import { Import } from '~/components/list/Import';
 import { PDSafeAreaView } from '~/components/PDSafeAreaView';
-// import { PDText } from '~/components/PDText';
 import { PDSpacing, useTheme } from '~/components/PDTheme';
 import { PDView } from '~/components/PDView';
-
 
 export const ImportFromDeviceScreen = (): JSX.Element => {
     const styles = getStyles(useTheme(), StyleSheet, useSafeAreaInsets());
@@ -34,7 +32,6 @@ const getStyles = (theme: any, styleSheet: any, insets: any) => {
     },
     bodyContainer: {
         flex: 1,
-        backgroundColor: theme.colors.background,
         padding: PDSpacing.md,
     },
     header: {

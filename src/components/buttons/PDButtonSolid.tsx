@@ -15,6 +15,7 @@ import { PDView } from '../PDView';
     bgColor?: PDColor;
     icon?: JSX.Element
     title: string;
+    disabled?: boolean;
 }
 
 export const PDButtonSolid: React.FC<PDButtonProps> = (props) => {
@@ -26,6 +27,7 @@ export const PDButtonSolid: React.FC<PDButtonProps> = (props) => {
         bgColor = 'blue',
         textColor = 'white',
         icon,
+        disabled,
         ...rest
     } = props;
     const theme = useTheme();
@@ -40,6 +42,7 @@ export const PDButtonSolid: React.FC<PDButtonProps> = (props) => {
     const touchableProps: TouchableScaleProps = {
         onPress,
         activeScale: 0.97,
+        disabled,
         hitSlop: { top: hitSlop, left: hitSlop, bottom: hitSlop, right: hitSlop },
     };
 
