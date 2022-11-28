@@ -10,6 +10,7 @@ interface useFilePickerProps {
     fileData: any;
     isLoaded: boolean;
     reset: (arg0: Function, arg1: Function) => void;
+    error: any;
 }
 
 export type FileType = {
@@ -27,6 +28,7 @@ export const useFilePicker = (): useFilePickerProps => {
     const [file, setFile] = useState({} as FileType | DocumentPickerResponse | null | undefined);
     const [fileData, setFileData] = useState({} as any);
     const [isLoaded, setIsLoaded] = useState(false);
+    const [error, setError] = useState({} as any);
 
     const pickFile = async () => {
             try {
@@ -35,6 +37,12 @@ export const useFilePicker = (): useFilePickerProps => {
 
                   if (doc.mime !== 'text/comma-separated-values') {
                       Alert.alert('Invalid File Type', 'Please select a CSV file.');
+                      setFile(null);
+                      setFileData(null);
+                      setIsLoaded(false);
+                      return;
+                  } else if (!doc.data) {
+                      Alert.alert('Invalid File', 'Please select a valid CSV file.');
                       setFile(null);
                       setFileData(null);
                       setIsLoaded(false);
@@ -67,5 +75,5 @@ export const useFilePicker = (): useFilePickerProps => {
             setIsImported(false);
         };
 
-    return { file, fileData, pickFile, isLoaded, reset };
+    return { file, fileData, pickFile, isLoaded, reset, error };
 };

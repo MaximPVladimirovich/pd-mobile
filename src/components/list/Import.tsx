@@ -18,7 +18,7 @@ import { PDButtonSolid } from '../buttons/PDButtonSolid';
 import { SVG } from '~/assets/images';
 
 export const Import = (): any => {
-  const { file, fileData, pickFile, isLoaded, reset } = useFilePicker();
+  const { file, fileData, pickFile, isLoaded, reset, error } = useFilePicker();
   const [pools, setPools] = useState([] as any);
   const [isImported, setIsImported] = useState(false);
   const [importing, setImporting] = useState(false);
@@ -47,11 +47,21 @@ export const Import = (): any => {
         setPools(result);
       } else {
         const readFileData = await TempCsvRepo.readCSV(file.uri);
-        const { data } = ImportService.convertCSV_To_JSON(readFileData);
 
-        const result = ImportService.convertJSON_To_Pools(data);
+        console.log('readFileData', readFileData);
 
-        setPools(result);
+        const { data, errors } = ImportService.convertCSV_To_JSON(readFileData);
+
+        if (errors.length > 0) {
+          for (let err of errors) {
+            Alert.alert('Error', err.message);
+          }
+
+          return;
+        } else {
+          const result = ImportService.convertJSON_To_Pools(data);
+          setPools(result);
+        }
       }
     };
 
@@ -126,50 +136,50 @@ export const Import = (): any => {
 
   const ImportStats = () => {
     return isImported ? (
-          <PDView style={ styles.importStats }>
-            {
-              Object.keys(poolImportStats).map((key: string) => {
-                const { pools, logs } = poolImportStats[key];
-                const action = key === 'imported' ? 'Imported' : 'Not Imported';
+      <PDView style={ styles.importStats }>
+        {
+          Object.keys(poolImportStats).map((key: string) => {
+            const { pools, logs } = poolImportStats[key];
+            const action = key === 'imported' ? 'Imported' : 'Not Imported';
 
-                return (
-                  <>
-                    <PDText type="subHeading" color="greyDarker">
-                      { pools } { pluralize('pool', pools) } { action }
-                    </PDText>
-                    <PDText type="subHeading" color="greyDarker">
-                      { logs } { pluralize('logs', logs) } { action }
-                    </PDText></>
-                );
-              })
-            }
-          </PDView>
-        ) : null;
-      };
-
-      const importButtonText = () => {
-        if (pools.length) {
-          if (isImported) {
-            return 'Go Home';
-          } else {
-            return `Import ${pools.length} ${pluralize('pool', pools.length)}`;
-          }
-        } else {
-          return 'Import';
+            return (
+              <>
+                <PDText type="subHeading" color="greyDarker">
+                  { pools } { pluralize('pool', pools) } { action }
+                </PDText>
+                <PDText type="subHeading" color="greyDarker">
+                  { logs } { pluralize('logs', logs) } { action }
+                </PDText></>
+            );
+          })
         }
-      };
+      </PDView>
+    ) : null;
+  };
 
-      const importButtonOnPress = () => {
-        if (pools.length && isLoaded) {
-          if (isImported) {
-            goHome();
-          } else {
-            savePools();
-          }
-        } else {
-          pickFile();
-        }
-      };
+  const importButtonText = () => {
+    if (pools.length) {
+      if (isImported) {
+        return 'Go Home';
+      } else {
+        return `Import ${pools.length} ${pluralize('pool', pools.length)}`;
+      }
+    } else {
+      return 'Select file';
+    }
+  };
+
+  const importButtonOnPress = () => {
+    if (pools.length && isLoaded) {
+      if (isImported) {
+        goHome();
+      } else {
+        savePools();
+      }
+    } else {
+      pickFile();
+    }
+  };
 
   return (
     <PDView style={ styles.container }>
@@ -177,19 +187,25 @@ export const Import = (): any => {
       <PDText type="bodyRegular" color="greyDark">
         Want to import pools from a .csv file?
       </PDText>
-      <ImportStats/>
+      <ImportStats />
       <BoringButton title={ importButtonText() } onPress={ importButtonOnPress } containerStyles={ styles.boringButtonContainer } />
-      <PDText type="bodyRegular" color="greyDark" style={ styles.cancelButtonContainer }>
-        Want to start over? You can delete everything imported.
-      </PDText>
-      <PDButtonSolid
-        disabled={  !pools.length || importing }
-        bgColor={ !pools.length || importing ? 'grey' : 'red' }
-        textColor="alwaysWhite"
-        onPress={ handleCancelImport }
-        icon={ <SVG.IconDeleteOutline fill={ theme.colors.alwaysWhite } /> }
-        title="Undo Import"
-        style={ styles.cancelButton } />
+      {
+        pools.length > 0 && (
+          <>
+          <PDText type="bodyRegular" color="greyDark" style={ styles.cancelButtonContainer }>
+            Want to start over? You can delete everything imported.
+          </PDText>
+            <PDButtonSolid
+              disabled={ !pools.length || importing }
+              bgColor={ !pools.length || importing ? 'grey' : 'red' }
+              textColor="alwaysWhite"
+              onPress={ handleCancelImport }
+              icon={ <SVG.IconDeleteOutline fill={ theme.colors.alwaysWhite } /> }
+              title="Undo Import"
+              style={ styles.cancelButton } />
+          </>
+        )
+      }
     </PDView>
   );
 };

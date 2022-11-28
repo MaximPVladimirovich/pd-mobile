@@ -33,11 +33,11 @@ export namespace ImportService {
     };
 
     export const convertCSV_To_JSON = (csvData: string): ConvertCSV_To_JSONProps => {
-        const data = readString(csvData, {
-            header: true,
-        });
+      const data = readString(csvData, {
+        header: true,
+      });
 
-        return data;
+      return data;
     };
 
     export const convertJSON_To_Pools = (json: any): Array<PoolV3> => {

@@ -20,6 +20,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { HR } from '~/components/Hr';
 import { PDButtonSolid } from '~/components/buttons/PDButtonSolid';
 import { PDButton } from '~/components/buttons/PDButton';
+import { BoringButton } from '~/components/buttons/BoringButton';
 
 export const ImportScreen: React.FC = () => {
     const [hasImported, setHasImported] = useState(false);
@@ -30,6 +31,9 @@ export const ImportScreen: React.FC = () => {
     const [skippedLogs, setSkippedLogs] = useState(0);
     const numPools = useImportablePools();
     useStandardStatusBar();
+
+    // Button text:
+    const buttonText = 'Import from CSV';
 
     const theme = useTheme();
     const insets = useSafeAreaInsets();
@@ -94,7 +98,7 @@ export const ImportScreen: React.FC = () => {
             <ScrollView style={ { flex: 1 } } contentInset={ { bottom: insets.bottom } }>
                 <PDView style={ styles.container }>
                     { getPoolDoctorContent() }
-                    <PDButton onPress={ goToImportFromDevice }>Import from Device</PDButton>
+                    <BoringButton title={ buttonText } onPress={ goToImportFromDevice } containerStyles={ { backgroundColor: theme.colors.blue } } />
                     <PDText type="bodyMedium" color="greyDarker" style={ { marginTop: PDSpacing.xl } }>Want to import pools from somewhere else? Tell us on the support forum:</PDText>
                     <ForumPrompt />
                 </PDView>
